@@ -10,6 +10,7 @@ export const AuthButton = () => {
     <>
       <SignedIn>
         <UserButton />
+        {/* Add menu items for Studio and User Profile  */}
       </SignedIn>
       <SignedOut>
         <SignInButton mode="modal">

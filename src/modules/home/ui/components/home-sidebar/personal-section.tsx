@@ -8,6 +8,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { useAuth } from "@clerk/clerk-react";
+import { useClerk } from "@clerk/nextjs";
 import { HistoryIcon, ListVideoIcon, ThumbsUpIcon } from "lucide-react";
 import Link from "next/link";
 
@@ -16,6 +18,7 @@ const items = [
     title: "History",
     url: "/playlists/history",
     icon: HistoryIcon,
+    auth: true,
   },
   {
     title: "Liked videos",
@@ -27,10 +30,13 @@ const items = [
     title: "All playlists",
     url: "/playlists",
     icon: ListVideoIcon,
+    auth: true,
   },
 ];
 
 export const PersonalSection = () => {
+  const clerk = useClerk();
+  const { isSignedIn } = useAuth();
   return (
     <SidebarGroup>
       <SidebarGroupLabel>You</SidebarGroupLabel>
@@ -42,7 +48,12 @@ export const PersonalSection = () => {
                 tooltip={item.title}
                 asChild
                 isActive={false} // TODO : Change to look at current pathname
-                onClick={() => {}} //TODO : Do something on click
+                onClick={(e) => {
+                  if (!isSignedIn && item.auth) {
+                    e.preventDefault();
+                    return clerk.openSignIn();
+                  }
+                }} //TODO : Do something on click
               >
                 <Link href={item.url} className="flex item-center gap-4">
                   <item.icon />
