@@ -8,8 +8,8 @@ export const HomeSidebar = () => {
     <Sidebar className="pt-16 z-40 border-none" collapsible="icon">
       <SidebarContent className="bg-background">
         <MainSection />
-        <PersonalSection />
         <Separator />
+        <PersonalSection />
       </SidebarContent>
     </Sidebar>
   );
