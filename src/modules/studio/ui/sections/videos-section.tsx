@@ -13,5 +13,5 @@ export const VidoesSelection = () => {
     }
   );
 
-  return <div>Videos Section</div>;
+  return <div>{JSON.stringify(data)}</div>;
 };
