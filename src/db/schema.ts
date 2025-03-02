@@ -7,7 +7,11 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
-import {createInsertSchema,createSelectSchema,createUpdateSchema}  from "drizzle-zod":
+import {
+  createInsertSchema,
+  createSelectSchema,
+  createUpdateSchema,
+} from "drizzle-zod";
 
 import { relations } from "drizzle-orm";
 
