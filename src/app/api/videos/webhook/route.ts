@@ -58,12 +58,14 @@ export const POST = async (request: Request) => {
       break;
     }
     case "video.asset.ready": {
-      const data = (await payload.data) as VideoAssetReadyWebhookEvent["data"];
+      const data = payload.data as VideoAssetReadyWebhookEvent["data"];
       const playbackId = data.playback_ids?.[0].id;
 
       if (!data.upload_id) {
         return new Response("Missing upload ID", { status: 400 });
       }
+
+      console.log("Hello from the ready");
 
       if (!playbackId) {
         return new Response("Missing playback ID", { status: 400 });
@@ -90,6 +92,7 @@ export const POST = async (request: Request) => {
       if (!data.upload_id) {
         return new Response("Missing upload ID", { status: 400 });
       }
+
       await db
         .update(videos)
         .set({
@@ -106,16 +109,20 @@ export const POST = async (request: Request) => {
       }
 
       await db.delete(videos).where(eq(videos.muxUploadId, data.upload_id));
+      break;
     }
     case "video.asset.track.ready": {
+      console.log("Track ready");
+
       const data = payload.data as VideoAssetTrackReadyWebhookEvent["data"] & {
         asset_id: string;
       };
 
       // Typescript incorrectly says that asset_id does not exist
       const assetId = data.asset_id;
-      const trackId = data.status;
-      if (!data.asset_id) {
+      const trackId = data.id;
+      const status = data.status;
+      if (!assetId) {
         return new Response("Missing asset ID", { status: 400 });
       }
 
