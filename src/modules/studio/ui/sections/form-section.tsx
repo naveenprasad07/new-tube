@@ -12,6 +12,8 @@ import {
 import {
   CopyCheckIcon,
   CopyIcon,
+  Globe2Icon,
+  LockIcon,
   MoreVerticalIcon,
   TrashIcon,
 } from "lucide-react";
@@ -42,6 +44,8 @@ import {
 import { videoUpdateSchema } from "@/db/schema";
 import { toast } from "sonner";
 import { VideoPlayer } from "@/modules/videos/ui/components/video-player";
+import { snakeCaseToTitle } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 interface FormSectionProps {
   videoId: string;
@@ -62,6 +66,7 @@ const FormSectionSkeleton = () => {
 };
 
 const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
+  const router = useRouter();
   const utils = trpc.useUtils();
   const [video] = trpc.studio.getOne.useSuspenseQuery({ id: videoId });
   const [categories] = trpc.categories.getMany.useSuspenseQuery();
@@ -71,6 +76,16 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
       utils.studio.getMany.invalidate();
       utils.studio.getOne.invalidate({ id: videoId });
       toast.success("Updated Successfully");
+    },
+    onError: () => {
+      toast.error("Something went wrong");
+    },
+  });
+  const remove = trpc.videos.remove.useMutation({
+    onSuccess: () => {
+      utils.studio.getMany.invalidate();
+      toast.success("Videos removed");
+      router.push("/studio")
     },
     onError: () => {
       toast.error("Something went wrong");
@@ -122,7 +137,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={()=>remove.mutate({id:videoId})}>
                   <TrashIcon className="size-4 mr-2" />
                   Delete
                 </DropdownMenuItem>
@@ -230,9 +245,63 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                     </div>
                   </div>
                 </div>
-                <div>Hello Test</div>
+
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-y-1">
+                    <p className="text-muted-foreground text-xs">
+                      Video Status
+                    </p>
+                    <p>{snakeCaseToTitle(video.muxStatus || "preparing")}</p>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-center">
+                  <div className="flex flex-col gap-y-1">
+                    <p className="text-muted-foreground text-xs">
+                      Subtitle Status
+                    </p>
+                    <p>
+                      {snakeCaseToTitle(video.muxTrackStatus || "no_subtitles")}
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
+
+            <FormField
+              control={form.control}
+              name="visibility"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Visibility</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value ?? undefined}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Visibility" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="public">
+                      <div className="flex items-center">
+                      <Globe2Icon className="size-4 mr-2" />
+                      Public
+                      </div>
+                      </SelectItem>
+                      <SelectItem value="private">
+                        <div className="flex items-center">
+                        <LockIcon className="size-4 mr-2"/>
+                        Private
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
         </div>
       </form>
