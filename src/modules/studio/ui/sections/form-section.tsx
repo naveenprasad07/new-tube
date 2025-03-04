@@ -13,6 +13,7 @@ import {
   CopyCheckIcon,
   CopyIcon,
   Globe2Icon,
+  ImagePlusIcon,
   LockIcon,
   MoreVerticalIcon,
   TrashIcon,
@@ -46,6 +47,8 @@ import { toast } from "sonner";
 import { VideoPlayer } from "@/modules/videos/ui/components/video-player";
 import { snakeCaseToTitle } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { THUMBNAIL_FALLBACK } from "@/modules/videos/constants";
 
 interface FormSectionProps {
   videoId: string;
@@ -174,7 +177,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      {...field}
+                      {...field} 
                       value={field.value ?? ""}
                       rows={10}
                       className="resize-none pr-10"
@@ -185,7 +188,38 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 </FormItem>
               )}
             />
-            {/* TODO : Add thumbnail field here  */}
+
+            <FormField 
+            name="thumbnailUrl"
+            control = {form.control}
+            render = {()=>(
+              <FormItem>
+                <FormLabel>Thumbnail</FormLabel>
+                <FormControl>
+                  <div className="p-0.5 border border-dashed border-neutral-400 relative h-[84px] w-[153px] group">
+                    <Image src={video.thumbnailUrl || THUMBNAIL_FALLBACK} className="object-cover" fill alt="Thumbnail"/>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button type="button" size="icon" className="hover:bg-black/50 bg-black/50 absolute top-1 right-1 rounded-full opacity-100 md:opacity-0 group-hover:opacity-100 duration-300 size-7"> 
+                          <MoreVerticalIcon className="text-white"/>
+
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" side="right">
+                        <DropdownMenuItem>
+                          <ImagePlusIcon className="size-4 mr-1">
+                              Change
+                          </ImagePlusIcon>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </FormControl>
+              </FormItem>
+            )}
+            />            
+            
+
             <FormField
               control={form.control}
               name="categoryId"
