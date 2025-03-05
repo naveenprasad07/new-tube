@@ -1,4 +1,3 @@
-import { Webhook } from "svix";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import {

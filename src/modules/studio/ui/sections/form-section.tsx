@@ -14,6 +14,7 @@ import {
   CopyIcon,
   Globe2Icon,
   ImagePlusIcon,
+  Loader2Icon,
   LockIcon,
   MoreVerticalIcon,
   RotateCcwIcon,
@@ -95,6 +96,26 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
       utils.studio.getMany.invalidate();
       toast.success("Videos removed");
       router.push("/studio");
+    },
+    onError: () => {
+      toast.error("Something went wrong");
+    },
+  });
+  const generateTitle = trpc.videos.generateTitle.useMutation({
+    onSuccess: () => {
+      utils.studio.getMany.invalidate();
+      utils.studio.getOne.invalidate({id:videoId});
+      toast.success("Background job started",{description:"This may take a  while"});
+    },
+    onError: () => {
+      toast.error("Something went wrong");
+    },
+  });
+  const generateDescription = trpc.videos.generateDescription.useMutation({
+    onSuccess: () => {
+      utils.studio.getMany.invalidate();
+      utils.studio.getOne.invalidate({id:videoId});
+      toast.success("Background job started",{description:"This may take a  while"});
     },
     onError: () => {
       toast.error("Something went wrong");
@@ -190,8 +211,20 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Title
                       {/* TODO ADD AI generate button  */}
+                      <div className="flex items-center gap-x-2">
+                        Title
+                        <Button
+                        size="icon"
+                        variant="outline"
+                        type="button"
+                        className="rounded-full size-6 [&_svg]:size-3 hidden"
+                        onClick={()=>generateTitle.mutate({id:videoId})}
+                        disabled={generateTitle.isPending || !video.muxTrackId}
+                  >
+                    {generateTitle.isPending?<Loader2Icon className="animate-spin"/>:<SparkleIcon/>}
+                        </Button>
+                      </div>
                     </FormLabel>
                     <FormControl>
                       <Input
@@ -209,8 +242,19 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Description
-                      {/* TODO ADD AI generate button  */}
+                    <div className="flex items-center gap-x-2">
+                        Description
+                        <Button
+                        size="icon"
+                        variant="outline"
+                        type="button"
+                        className="rounded-full size-6 [&_svg]:size-3 hidden"
+                        onClick={()=>generateDescription.mutate({id:videoId})}
+                        disabled={generateDescription.isPending || !video.muxTrackId}
+                  >
+                    {generateDescription.isPending?<Loader2Icon className="animate-spin"/>:<SparkleIcon/>}
+                        </Button>
+                      </div>
                     </FormLabel>
                     <FormControl>
                       <Textarea
@@ -258,6 +302,7 @@ const FormSectionSuspense = ({ videoId }: FormSectionProps) => {
                               Change
                             </DropdownMenuItem>
                             <DropdownMenuItem
+                            className="hidden"
                                onClick={()=>generateThumbnail.mutate({id:videoId})}
                             >  
                               <SparkleIcon className="size-4 mr-1" />
